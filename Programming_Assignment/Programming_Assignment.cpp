@@ -1,4 +1,4 @@
-// Week04_Programming_Assignment.cpp
+// Week05_Programming_Assignment.cpp
 
 // This program prompts the user for information related to creative writing.
 
@@ -6,184 +6,310 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
-#include <cassert>
+#include <windows.h>
 
 using namespace std;
 
+// This defines the various function prototypes.
+void changeColor(int color);
+void displayBanner();
+void displayMenu();
+
+string getValidString(string prompt);
+int getValidInt(string prompt, int min, int max);
+double getValidDouble(string prompt, double min, double max);
+
+double calculateAverage(double totalHours, int writingDays);
+void saveReport(string favoriteBook, string favoriteAuthor, int writingDays, double totalHours, double averageHours);
+
 int main()
 {
-    // These are variables that allow the user input menu to function properly.
     int menuChoice;
 
-        // This is a do...while loop that allows the user to run the menu repeatedly until they wish to quit.
+    // These are variables that store user input.
+    string favoriteBook = "";
+    string favoriteAuthor = "";
+    int writingDays = 0;
+
+    // These are variables used for calculations.
+    double totalHours = 0.0;
+    double averageHours = 0.0;
+
+    // This is a do...while loop that allows the user to run the menu repeatedly until they wish to quit.
     do
     {
-        cout << "====================================================" << endl;
-        cout << "   Welcome to this Program About Creative Writing   " << endl;
-        cout << "====================================================" << endl;
+        // This calls the displayBanner and displayMenu functions.
+        displayBanner();
+        displayMenu();
 
-        cout << "1. Add Writing Session" << endl;
-        cout << "2. View Writing Report" << endl;
-        cout << "3. Recommend Writing Level" << endl;
-        cout << "4. Quit" << endl;
-        cout << "Enter choice: ";
-
-        while (!(cin >> menuChoice))
-        {
-            cout << "Invalid input. Enter a number: ";
-            cin.clear();
-            cin.ignore(200, '\n');
-        }
-
-        cin.ignore(200, '\n');
+        menuChoice = getValidInt("Enter choice: ", 1, 4);
 
         switch (menuChoice)
         {
         case 1:
         {
-            // These are variables that store user input.
-            string favoriteBook;
-            string favoriteAuthor;
-            int writingDays;
-            double sessionHours;
-
-            // These are variables used for a simple calculation.
-            double totalHours = 0.0;
-            double averageHours;
+            totalHours = 0.0;
 
             // This prompts the user about what their favorite book is.
-            cout << "What is your favorite book?" << endl;
-            getline(cin, favoriteBook);
+            favoriteBook = getValidString("What is your favorite book? ");
 
             // This prompts the user about who their favorite author is.
-            cout << "Who is your favorite author? Please enter their first and last name." << endl;
-            getline(cin, favoriteAuthor);
+            favoriteAuthor = getValidString("Who is your favorite author? ");
 
-            // This prompts the user about how many days a week, on average, they write.
-            cout << "How many days did you write this past week? Please enter a number between 1 and 7." << endl;
+            // This prompts the user about how many days they wrote this week.
+            writingDays = getValidInt("How many days did you write this week? Please enter a number between 1 and 7. ", 1, 7);
 
-            while (!(cin >> writingDays) || writingDays < 1 || writingDays > 7)
-            {
-                cout << "Please enter a value from 1 to 7: ";
-                cin.clear();
-                cin.ignore(200, '\n');
-            }
-
-            // This is a while loop nested in a for loop that runs a fixed number of times depending on writingDays.
+            // This is a for loop that runs a fixed number of times depending on writingDays.
             for (int day = 1; day <= writingDays; day++)
             {
-                cout << "Hours written on day "
-                    << day << ": ";
+                double sessionHours =
+                    getValidDouble("Hours written on day " + to_string(day) + ": ", 0.0, 24.0);
 
-                while (!(cin >> sessionHours) || sessionHours < 0 || sessionHours > 24)
-                {
-                    cout << "Please enter a valid number: ";
-                    cin.clear();
-                    cin.ignore(200, '\n');
-                }
-
-                // This expression is equivalent to totalHours = totalHours + sessionHours.
-                totalHours += sessionHours;
+                totalHours += sessionHours; // This expression is equivalent to totalHours = totalHours + sessionHours.
             }
 
-            // This calculates the average number of hours the user writes based on totalHours and writingDays.
-            averageHours = totalHours / writingDays;
+            // This calculates the average number of hours by calling the calculateAverage function.
+            averageHours = calculateAverage(totalHours, writingDays);
 
-            // This compound boolean comments on the user's writing habits based on writingDays and averageHours.
+            changeColor(10); // Green
+
+            // This compound boolean comments on the user's writing habits.
             if (writingDays >= 5 && averageHours >= 2.0)
             {
-                cout << "\nYou have a strong writing routine." << endl;
+                cout << "\nYou have a strong writing routine.\n";
             }
             else
             {
-                cout << "\nKeep building your writing habit." << endl;
+                cout << "\nKeep building your writing habit.\n";
             }
 
-            // This compound boolean also comments on the user's writing habits based on writingDays and averageHours.
-            if (writingDays >= 3 && totalHours >= 10)
+            // This compound boolean also comments on the user's writing habits.
+            if (writingDays >= 3 && totalHours >= 10.0)
             {
-                cout << "You are showing excellent commitment." << endl;
+                cout << "You are showing excellent commitment.\n";
             }
             else
             {
-                cout << "Try increasing your weekly writing time." << endl;
+                cout << "Try increasing your weekly writing time.\n";
             }
+
+            changeColor(7); // Default Gray
 
             // This displays all the information the user input in a well-formatted summary table.
-            cout << "\n------------------ CREATIVE WRITING REPORT ------------------" << endl;
+            cout << "\n";
+            cout << "------------- CREATIVE WRITING REPORT -------------\n";
 
-            cout << left << setw(30) << "Favorite Book:"
+            cout << left << setw(25) << "Favorite Book:"
                 << favoriteBook << endl;
 
-            cout << left << setw(30) << "Favorite Author:"
+            cout << left << setw(25) << "Favorite Author:"
                 << favoriteAuthor << endl;
 
-            cout << left << setw(30) << "Writing Days:"
+            cout << left << setw(25) << "Writing Days:"
                 << writingDays << endl;
 
-            cout << left << setw(30) << "Total Hours:" << fixed << setprecision(2)
+            cout << left << setw(25) << "Total Hours:" << fixed << setprecision(2)
                 << totalHours << endl;
 
-            cout << left << setw(30) << "Average Hours/Day:"
+            cout << left << setw(25) << "Average Hours/Day:"
                 << averageHours << endl;
 
-            cout << "-------------------------------------------------------------" << endl;
+            cout << "---------------------------------------------------\n";
 
-            // This saves the summary table as a file named report.txt.
-            ofstream outFile("report.txt");
-
-            if (outFile)
-            {
-                outFile << "------------------ CREATIVE WRITING REPORT ------------------" << endl;
-
-                outFile << left << setw(30) << "Favorite Book:"
-                    << favoriteBook << endl;
-
-                outFile << left << setw(30) << "Favorite Author:"
-                    << favoriteAuthor << endl;
-
-                outFile << left << setw(30) << "Writing Days:"
-                    << writingDays << endl;
-
-                outFile << left << setw(30) << "Total Hours:" << fixed << setprecision(2)
-                    << totalHours << endl;
-
-                outFile << left << setw(30) << "Average Hours/Day:"
-                    << averageHours << endl;
-
-                outFile << "-------------------------------------------------------------" << endl;
-
-
-                outFile.close();
-
-                cout << endl << "Report saved as report.txt" << endl;
-            }
+            saveReport(favoriteBook, favoriteAuthor, writingDays, totalHours, averageHours);
 
             break;
         }
 
         case 2:
-            cout << "\nView Writing Report selected." << endl;
+        {
+            cout << "\n------------- WRITING REPORT -------------\n";
+
+            if (writingDays == 0)
+            {
+                cout << "No writing session has been entered yet.\n";
+            }
+            else
+            {
+                cout << left << setw(25) << "Favorite Book:"
+                    << favoriteBook << endl;
+
+                cout << left << setw(25) << "Favorite Author:"
+                    << favoriteAuthor << endl;
+
+                cout << left << setw(25) << "Writing Days:"
+                    << writingDays << endl;
+
+                cout << left << setw(25) << "Total Hours:" << fixed << setprecision(2)
+                    << totalHours << endl;
+
+                cout << left << setw(25) << "Average Hours/Day:"
+                    << averageHours << endl;
+            }
+
             break;
+        }
 
         case 3:
-            cout << "\nWriting Levels" << endl;
-            cout << "Beginner: 1-2 days/week" << endl;
-            cout << "Intermediate: 3-4 days/week" << endl;
-            cout << "Advanced: 5-7 days/week" << endl;
+        {
+            cout << "\nWriting Levels\n";
+            cout << "Beginner: 1-2 days/week\n";
+            cout << "Intermediate: 3-4 days/week\n";
+            cout << "Advanced: 5-7 days/week\n";
+
             break;
+        }
 
         case 4:
-            cout << "\nExiting program..." << endl;
+        {
+            cout << "\nExiting program...\n";
             break;
-
-        default:
-            cout << "\nInvalid menu option." << endl;
+        }
         }
 
     } while (menuChoice != 4);
 
     return 0;
+}
+
+// This function changes the console text color.
+void changeColor(int color)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
+// This function displays the welcome banner.
+void displayBanner()
+{
+    changeColor(11); // Light blue
+
+    cout << "=======================================================" << endl;
+    cout << "   Welcome to this Creative Writing Tracking Program   " << endl;
+    cout << "=======================================================" << endl;
+
+    changeColor(7); // Default gray
+}
+
+// This function displays the user input options menu.
+void displayMenu()
+{
+    changeColor(14); // Yellow
+
+    cout << "\n1. Add Writing Session" << endl;
+    cout << "2. View Writing Report" << endl;
+    cout << "3. Recommend Writing Level" << endl;
+    cout << "4. Quit" << endl;
+
+    changeColor(7); // Default Gray
+}
+
+// This function collects and validates string input.
+string getValidString(string prompt)
+{
+    string input;
+
+    do
+    {
+        cout << prompt;
+        getline(cin, input);
+
+        if (input.empty())
+        {
+            cout << "Input cannot be empty. Please try again.\n";
+        }
+
+    } while (input.empty());
+
+    return input;
+}
+
+// This function collects and validates integer input.
+int getValidInt(string prompt, int min, int max)
+{
+    int value;
+
+    while (true)
+    {
+        cout << prompt;
+
+        if (cin >> value && value >= min && value <= max)
+        {
+            cin.ignore(200, '\n');
+            return value;
+        }
+
+        cout << "Invalid input. Please enter a value from "
+            << min << " to " << max << ".\n";
+
+        cin.clear();
+        cin.ignore(200, '\n');
+    }
+}
+
+// This function collects and validates double input.
+double getValidDouble(string prompt, double min, double max)
+{
+    double value;
+
+    while (true)
+    {
+        cout << prompt;
+
+        if (cin >> value && value >= min && value <= max)
+        {
+            return value;
+        }
+
+        cout << "Invalid input. Please try again.\n";
+
+        cin.clear();
+        cin.ignore(200, '\n');
+    }
+}
+
+// This function calculates the average hours spent writing.
+double calculateAverage(double totalHours, int writingDays)
+{
+    return totalHours / writingDays;
+}
+
+// This function saves the report as a text file named report.txt.
+void saveReport(string favoriteBook,
+    string favoriteAuthor,
+    int writingDays,
+    double totalHours,
+    double averageHours)
+{
+    ofstream outFile("report.txt");
+
+    if (!outFile)
+    {
+        cout << "Error creating report file.\n";
+        return;
+    }
+
+    outFile << "---------------- CREATIVE WRITING REPORT ----------------\n";
+
+    outFile << left << setw(25) << "Favorite Book:"
+        << favoriteBook << endl;
+
+    outFile << left << setw(25) << "Favorite Author:"
+        << favoriteAuthor << endl;
+
+    outFile << left << setw(25) << "Writing Days:"
+        << writingDays << endl;
+
+    outFile << left << setw(25) << "Total Hours:" << fixed << setprecision(2)
+        << totalHours << endl;
+
+    outFile << left << setw(25) << "Average Hours/Day:"
+        << averageHours << endl;
+
+    outFile << "----------------------------------------------------------\n";
+
+    outFile.close();
+
+    cout << "\nReport saved as report.txt\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
